@@ -2,26 +2,33 @@
 #Darey.io AUX PROJECT 1
 #This script is written by Akinmoyero Gabriel
 
-#This will create the group Developers
-echo 
-sudo groupadd developers
-#Check if the group is created 
-sudo cat /etc/group | grep developers
-echo
-for name in `cat /home/ubuntu/Shell/names.csv`
+#!/usr/bin/bash
+
+names_path="./names.csv"
+group_name="developers"
+name=$USER
+key_pair_name=key_pair
+
+# Generate key-pair
+
+ssh-keygen -f $key_pair_name
+if cat /etc/group | grep $group_name; then
+echo "Group exists"
+else
+sudo groupadd $group_name
+fi
+
+for name in `cat $names_path`
 do
-       echo "Creating user $name"
-       #Set the user default shell group and other groups
-       sudo useradd -s /bin/bash -G developers -m -d /home/$name -U $name
-       #check if the user is created 
-       sudo cat /etc/passwd | grep $name
-       id $name
-       sleep 5
-       #Create authorized_key file where I will move the public key to
-       mkdir /home/$name/.ssh/ && touch /home/$name/.ssh/authorized_key
-       cp /home/ubuntu/.ssh/id_rsa.pub /home/$name/.ssh/authorized_keys 
-       cat /home/$name/.ssh/authorized_keys
+  if cat /etc/passwd | grep $name; then
+   echo "${name} user exists"
+    else
+        sudo useradd -s /bin/bash -G $group_name -m -d /home/$name -U $name
+        sudo mkdir -p /home/$name/.ssh
+        sudo cp ${key_pair_name}.pub /home/$name/.ssh/authorized_keys
+fi
 done
-echo
-echo
+
+
+
 #Keep it short keep it simple
